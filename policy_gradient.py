@@ -23,9 +23,9 @@ from techniques.train_policy_gradient import train_policy_gradients
 
 BATCH_SIZE = 100  # every how many games to do a parameter update?
 LEARN_RATE = 1e-4
-PRINT_RESULTS_EVERY_X = 1000  # every how many games to print the results
+PRINT_RESULTS_EVERY_X = 100  # every how many games to print the results
 NETWORK_FILE_PATH = 'current_network.p'  # path to save the network to
-NUMBER_OF_GAMES_TO_RUN = 10000
+NUMBER_OF_GAMES_TO_RUN = 1000
 
 # to play a different game change this to another spec, e.g TicTacToeXGameSpec or ConnectXGameSpec, to get these to run
 # well may require tuning the hyper parameters a bit
