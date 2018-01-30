@@ -38,6 +38,7 @@ def train_policy_gradients(game_spec,
     Returns:
         (variables used in the final network : list, win rate: float)
     """
+	
     save_network_file_path = save_network_file_path or network_file_path
     opponent_func = opponent_func or game_spec.get_random_player_func()
     reward_placeholder = tf.placeholder("float", shape=(None,))
@@ -46,7 +47,7 @@ def train_policy_gradients(game_spec,
     input_layer, output_layer, variables = create_network()
 
     policy_gradient = tf.log(
-        tf.reduce_sum(tf.multiply(actual_move_placeholder, output_layer), reduction_indices=1)) * reward_placeholder
+        tf.reduce_sum(tf.multiply(actual_move_placeholder, output_layer), axis=1)) * reward_placeholder
     train_step = tf.train.AdamOptimizer(learn_rate).minimize(-policy_gradient)
 
     with tf.Session() as session:
@@ -58,21 +59,25 @@ def train_policy_gradients(game_spec,
 
         mini_batch_board_states, mini_batch_moves, mini_batch_rewards = [], [], []
         results = collections.deque(maxlen=print_results_every)
-
+        mini_batch_illegal_moves = 0
+        illegal_move = 0
+		
         def make_training_move(board_state, side):
             mini_batch_board_states.append(np.ravel(board_state) * side)
             move = get_stochastic_network_move(session, input_layer, output_layer, board_state, side)
             mini_batch_moves.append(move)
+            #print("Training Move Called")
             return game_spec.flat_move_to_tuple(move.argmax())
-
+		
         for episode_number in range(1, number_of_games):
             # randomize if going first or second
             if (not randomize_first_player) or bool(random.getrandbits(1)):
-                reward = game_spec.play_game(make_training_move, opponent_func)
+                reward,illegal_move = game_spec.play_game(make_training_move, opponent_func, log=False)
             else:
-                reward = -game_spec.play_game(opponent_func, make_training_move)
-
+                reward,illegal_move = game_spec.play_game(opponent_func, make_training_move, log=False)
+                reward = -reward
             results.append(reward)
+            mini_batch_illegal_moves+=illegal_move
 
             # we scale here so winning quickly is better winning slowly and loosing slowly better than loosing quick
             last_game_length = len(mini_batch_board_states) - len(mini_batch_rewards)
@@ -101,11 +106,15 @@ def train_policy_gradients(game_spec,
                 del mini_batch_board_states[:]
                 del mini_batch_moves[:]
                 del mini_batch_rewards[:]
+				
 
             if episode_number % print_results_every == 0:
-                print("episode: %s win_rate: %s" % (episode_number, _win_rate(print_results_every, results)))
+                
+                print("episode: %s win_rate: %s illegal_moves: %s" % (episode_number, _win_rate(print_results_every, results),mini_batch_illegal_moves))
+                mini_batch_illegal_moves = 0
                 if network_file_path:
                     save_network(session, variables, save_network_file_path)
+                    #print("file saved")
 
         if network_file_path:
             save_network(session, variables, save_network_file_path)
@@ -114,4 +123,5 @@ def train_policy_gradients(game_spec,
 
 
 def _win_rate(print_results_every, results):
+    #print("Random Move Called")
     return 0.5 + sum(results) / (print_results_every * 2.)

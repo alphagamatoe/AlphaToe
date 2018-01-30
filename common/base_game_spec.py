@@ -93,6 +93,16 @@ class BaseGameSpec(object):
             return tuple_move[0]
         else:
             return tuple_move[0] * self.board_dimensions()[0] + tuple_move[1]
+	
+	
+    def show_board(self,c):
+        pc = {0:' ', -1:'x',1:'o'}
+        print(" %s | %s | %s" % (pc[c[0][0]],pc[c[0][1]],pc[c[0][2]]))
+        print("---+---+---")
+        print(" %s | %s | %s" % (pc[c[1][0]],pc[c[1][1]],pc[c[1][2]]))
+        print("---+---+---")
+        print(" %s | %s | %s" % (pc[c[2][0]],pc[c[2][1]],pc[c[2][2]]))
+        print()
 
     def play_game(self, plus_player_func, minus_player_func, log=False, board_state=None):
         """Run a single game of until the end, using the provided function args to determine the moves for each
@@ -111,7 +121,7 @@ class BaseGameSpec(object):
         """
         board_state = board_state or self.new_board()
         player_turn = 1
-
+		
         while True:
             _available_moves = list(self.available_moves(board_state))
 
@@ -119,27 +129,30 @@ class BaseGameSpec(object):
                 # draw
                 if log:
                     print("no moves left, game ended a draw")
-                return 0.
+                return 0.,0
             if player_turn > 0:
                 move = plus_player_func(board_state, 1)
             else:
                 move = minus_player_func(board_state, -1)
 
             if move not in _available_moves:
+                #print("illegal move ", move)
                 # if a player makes an invalid move the other player wins
                 if log:
                     print("illegal move ", move)
-                return -player_turn
+                return -player_turn,1
+				
 
             board_state = self.apply_move(board_state, move, player_turn)
             if log:
-                print(board_state)
+                #print(board_state)
+                self.show_board(board_state)
 
             winner = self.has_winner(board_state)
             if winner != 0:
                 if log:
                     print("we have a winner, side: %s" % player_turn)
-                return winner
+                return winner , 0
             player_turn = -player_turn
 
     def get_random_player_func(self):
@@ -151,4 +164,5 @@ class BaseGameSpec(object):
         Returns:
             board_state, side (int) -> move : function that plays this game by making random moves
         """
+        #print("Random Move Called")
         return lambda board_state, side: random.choice(list(self.available_moves(board_state)))
