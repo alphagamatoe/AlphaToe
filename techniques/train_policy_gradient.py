@@ -17,7 +17,8 @@ def train_policy_gradients(game_spec,
                            print_results_every=1000,
                            learn_rate=1e-4,
                            batch_size=100,
-                           randomize_first_player=True):
+                           randomize_first_player=True
+						   plot_stats = True):
     """Train a network using policy gradients
 
     Args:
@@ -61,6 +62,10 @@ def train_policy_gradients(game_spec,
         results = collections.deque(maxlen=print_results_every)
         mini_batch_illegal_moves = 0
         illegal_move = 0
+        #for plotting
+        episode_win = []
+		episode_wrong_moves = []
+		episode_count = []
 		
         def make_training_move(board_state, side):
             mini_batch_board_states.append(np.ravel(board_state) * side)
@@ -109,7 +114,16 @@ def train_policy_gradients(game_spec,
 				
 
             if episode_number % print_results_every == 0:
+                import numpy as np
+                import matplotlib.pyplot as plt
+                episode_win.append(_win_rate(print_results_every, results)) 
+                episode_wrong_moves.append(mini_batch_illegal_moves/print_results_every) 
+				episode_count.append(episode_number)
                 
+                # red dashes, blue squares and green triangles
+                plt.plot(t, episode_win, 'r--', episode_count, episode_wrong_moves, 'g^')
+                plt.show()	   
+
                 print("episode: %s win_rate: %s illegal_moves: %s" % (episode_number, _win_rate(print_results_every, results),mini_batch_illegal_moves))
                 mini_batch_illegal_moves = 0
                 if network_file_path:
