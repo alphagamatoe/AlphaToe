@@ -90,11 +90,13 @@ def train_policy_gradients_vs_historic(game_spec, create_network, network_file_p
             opponent_index = random.randint(0, number_of_historic_networks - 1)
             make_move_historical_for_index = functools.partial(make_move_historical, opponent_index)
 
+			
             # randomize if going first or second
             if bool(random.getrandbits(1)):
-                reward = game_spec.play_game(make_training_move, make_move_historical_for_index)
+                reward,illegal_move = game_spec.play_game(make_training_move, make_move_historical_for_index)
             else:
-                reward = -game_spec.play_game(make_move_historical_for_index, make_training_move)
+                reward,illegal_move = game_spec.play_game(make_move_historical_for_index, make_training_move)
+                reward = -reward
 
             results.append(reward)
 
