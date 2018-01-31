@@ -12,7 +12,7 @@ given state with a given move applied. This can be useful for doing min-max or m
 import itertools
 import random
 
-from common.base_game_spec import BaseGameSpec
+from common.base_game_spec_v2 import BaseGameSpec
 from techniques.min_max import evaluate
 
 

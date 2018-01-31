@@ -18,7 +18,7 @@ force a draw.
 import functools
 
 from common.network_helpers import create_network
-from games.tic_tac_toe import TicTacToeGameSpec
+from games.tic_tac_toe_v2 import TicTacToeGameSpec
 from techniques.train_policy_gradient import train_policy_gradients
 
 BATCH_SIZE = 100  # every how many games to do a parameter update?
