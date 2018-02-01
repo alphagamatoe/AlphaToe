@@ -112,6 +112,8 @@ def play_game(plus_player_func, minus_player_func, log=False):
     Returns:
         int: 1 if the plus_player_func won, -1 if the minus_player_func won and 0 for a draw
     """
+	print("Inside tic game_play")
+	
     board_state = _new_board()
     player_turn = 1
 

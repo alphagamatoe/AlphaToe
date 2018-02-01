@@ -119,6 +119,7 @@ class BaseGameSpec(object):
         Returns:
             int: 1 if the plus_player_func won, -1 if the minus_player_func won and 0 for a draw
         """
+		
         board_state = board_state or self.new_board()
         player_turn = 1
 		
@@ -129,7 +130,7 @@ class BaseGameSpec(object):
                 # draw
                 if log:
                     print("no moves left, game ended a draw")
-                return 0.,0
+                return 99,100,{'illegal_move':0,'draw':1}
             if player_turn > 0:
                 move = plus_player_func(board_state, 1)
             else:
@@ -140,7 +141,7 @@ class BaseGameSpec(object):
                 # if a player makes an invalid move the other player wins
                 if log:
                     print("illegal move ", move)
-                return -player_turn,1
+                return -99,100,{'illegal_move':1,'draw':0}
 				
 
             board_state = self.apply_move(board_state, move, player_turn)
@@ -152,7 +153,7 @@ class BaseGameSpec(object):
             if winner != 0:
                 if log:
                     print("we have a winner, side: %s" % player_turn)
-                return winner , 0
+                return 99 ,100, {'illegal_move':0,'draw':0}
             player_turn = -player_turn
 
     def get_random_player_func(self):
