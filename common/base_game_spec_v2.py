@@ -119,7 +119,7 @@ class BaseGameSpec(object):
         Returns:
             int: 1 if the plus_player_func won, -1 if the minus_player_func won and 0 for a draw
         """
-        print("here")
+        #print("here")
         board_state = board_state or self.new_board()
         player_turn = 1
 		
